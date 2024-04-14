@@ -1,12 +1,19 @@
 package entities
 
 class XMLDocument(
-    override val name: String = "xml",
-    override val parent: XMLElement? = null,
-    val root: XMLElement,
-    override val attributes: List<XMLAttribute> =
-        listOf(XMLAttribute("version", "1.0"), XMLAttribute("encoding", "UTF-8"))
+    override val name: String = "xml"
 ): XMLElement {
+    var root: XMLElement? = null
+    override val parent: XMLElement? = null
+
+    override val attributes =
+        mutableListOf(XMLAttribute("version", "1.0"), XMLAttribute("encoding", "UTF-8"))
+
+    override val toText: String
+        get() = " ".repeat((depth - 1) * 2) +
+            "<?$name${attributes.joinToString(separator = "") { " ${it.name}=\"${it.value}\"" }}?>" +
+            "\n${root?.toText ?: ""}"
+
     fun addAttribute(tagName: String, attrName: String, attrVal: String) {
         TODO()
     }
@@ -24,10 +31,6 @@ class XMLDocument(
     }
 
     fun removeAttribute(tagName: String, attrName: String) {
-        TODO()
-    }
-
-    override fun toString(): String {
         TODO()
     }
 }

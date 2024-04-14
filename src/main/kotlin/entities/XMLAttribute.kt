@@ -1,6 +1,9 @@
 package entities
 
 class XMLAttribute(
-    name: String,
-    value: String
-)
+    val name: String,
+    val value: String
+) {
+    val toText: String
+        get() = " $name=\"$value\""
+}
