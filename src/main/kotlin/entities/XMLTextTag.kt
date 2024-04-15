@@ -1,11 +1,14 @@
 package entities
 
 class XMLTextTag(
-    override val name: String,
-    val text: String,
-    override val parent: XMLElement,
+    internal var name: String,
+    internal var text: String,
 ) : XMLElement {
-    override val attributes = mutableListOf<XMLAttribute>()
+    var parent: XMLElement? = null
+    private val attributes = mutableListOf<XMLAttribute>()
+
+    override val depth: Int
+        get() = if (parent is XMLDocument) 1 else 1 + (parent?.depth ?: 0)
 
     override val toText: String
         get() = " ".repeat((depth - 1) * 2) +
@@ -13,10 +16,15 @@ class XMLTextTag(
             text +
             "</$name>"
 
-    init {
-        when (parent) {
-            is XMLDocument -> parent.root = this
-            is XMLTag -> parent.children.add(this)
-        }
+    override fun addAttribute(name: String, value: String) {
+        attributes.add(XMLAttribute(name, value))
+    }
+
+    override fun updateAttribute(name: String, newName: String, newValue: String) {
+        attributes.find { it.name == name }?.update(newName, newValue)
+    }
+
+    override fun removeAttribute(name: String) {
+        attributes.removeIf { it.name == name }
     }
 }

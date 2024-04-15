@@ -1,12 +1,14 @@
 package entities
 
 class XMLTag(
-    override val name: String,
-    override val parent: XMLElement,
-
+    internal var name: String,
 ) : XMLElement {
-    val children = mutableListOf<XMLElement>()
-    override val attributes = mutableListOf<XMLAttribute>()
+    internal var parent: XMLElement? = null
+    internal val children = mutableListOf<XMLElement>()
+    private val attributes = mutableListOf<XMLAttribute>()
+
+    override val depth: Int
+        get() = if (parent is XMLDocument) 1 else 1 + (parent?.depth ?: 0)
 
     override val toText: String
         get() = if (children.size > 0) {
@@ -20,18 +22,46 @@ class XMLTag(
             "<$name${attributes.joinToString(separator = "") { it.toText }}/>"
         }
 
-    init {
-        when (parent) {
-            is XMLDocument -> parent.root = this
-            is XMLTag -> parent.children.add(this)
+    fun addElement(element: XMLElement) {
+        when (element) {
+            is XMLTag,  -> element.parent = this
+            is XMLTextTag -> element.parent = this
+            else -> throw Exception("Fail to add element. Wrong type")
+        }
+        children.add(element)
+    }
+
+    fun removeElement(name: String) {
+        val child = children.find {el ->
+            when(el) {
+                is XMLTag -> el.name == name
+                is XMLTextTag -> el.name == name
+                else -> false
+            }
+        }
+
+        when(child) {
+            is XMLTag -> {
+                children.remove(child)
+                child.parent = null
+            }
+            is XMLTextTag -> {
+                children.remove(child)
+                child.parent = null
+            }
+            else -> throw Exception("Fail to remove element. Wrong type")
         }
     }
 
-    fun addElement(newElement: XMLElement) {
-        TODO()
+    override fun addAttribute(name: String, value: String) {
+        attributes.add(XMLAttribute(name, value))
     }
 
-    fun removeElement(elemName: String) {
-        TODO()
+    override fun updateAttribute(name: String, newName: String, newValue: String) {
+        attributes.find { it.name == name }?.update(newName, newValue)
+    }
+
+    override fun removeAttribute(name: String) {
+        attributes.removeIf { it.name == name }
     }
 }
