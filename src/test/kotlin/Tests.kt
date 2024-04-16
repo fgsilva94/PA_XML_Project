@@ -147,9 +147,11 @@ class Tests {
         assertEquals("<?xml version=\"1.0\"?>", XMLDoc.toText)
         XMLDoc.addAttribute("encoding", "UTF-8")
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", XMLDoc.toText)
-        XMLDoc.updateAttribute("version", "version", "2.0")
+        XMLDoc.updateAttributeValue("version", "2.0")
         assertEquals("<?xml version=\"2.0\" encoding=\"UTF-8\"?>", XMLDoc.toText)
-        XMLDoc.removeAttribute("version")
+        XMLDoc.updateAttributeName("version", "versao")
+        assertEquals("<?xml versao=\"2.0\" encoding=\"UTF-8\"?>", XMLDoc.toText)
+        XMLDoc.removeAttribute("versao")
         assertEquals("<?xml encoding=\"UTF-8\"?>", XMLDoc.toText)
     }
 
@@ -160,19 +162,72 @@ class Tests {
         assertEquals("<fuc nome=\"Programação Avançada\"/>", fuc1.toText)
         fuc1.addAttribute("nota", "19")
         assertEquals("<fuc nome=\"Programação Avançada\" nota=\"19\"/>", fuc1.toText)
-        fuc1.updateAttribute("nome", "nome", "Dissertação")
+        fuc1.updateAttributeValue("nome", "Dissertação")
         assertEquals("<fuc nome=\"Dissertação\" nota=\"19\"/>", fuc1.toText)
+        fuc1.updateAttributeName("nome", "title")
+        assertEquals("<fuc title=\"Dissertação\" nota=\"19\"/>", fuc1.toText)
         fuc1.removeAttribute("nota")
-        assertEquals("<fuc nome=\"Dissertação\"/>", fuc1.toText)
+        assertEquals("<fuc title=\"Dissertação\"/>", fuc1.toText)
+    }
 
+    @Test
+    fun testElementCount() {
+        addElements()
+        addAttributes()
 
-//        assertEquals("<?xml version=\"1.0\"?>\n", XMLDoc.toText)
-//        XMLDoc.addAttribute("encoding", "UTF-8")
-//        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n", XMLDoc.toText)
-//        XMLDoc.updateAttribute("version", "version", "2.0")
-//        assertEquals("<?xml version=\"2.0\" encoding=\"UTF-8\"?>\n", XMLDoc.toText)
-//        XMLDoc.removeAttribute("version")
-//        assertEquals("<?xml encoding=\"UTF-8\"?>\n", XMLDoc.toText)
+        assertEquals(Pair(10, 5), XMLDoc.countXMLElements())
+    }
+
+    @Test
+    fun testRenameRemoveAllAttributes() {
+        addElements()
+        addAttributes()
+
+        XMLDoc.renameAllAttributes("componente", "nome", "title")
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<plano>\n" +
+                "  <curso>Mestrado em Engenharia Informática</curso>\n" +
+                "  <fuc codigo=\"M4310\">\n" +
+                "    <nome>Programação Avançada</nome>\n" +
+                "    <ects>6.0</ects>\n" +
+                "    <avaliacao>\n" +
+                "      <componente title=\"Quizzes\" peso=\"20%\"/>\n" +
+                "      <componente title=\"Projeto\" peso=\"80%\"/>\n" +
+                "    </avaliacao>\n" +
+                "  </fuc>\n" +
+                "  <fuc codigo=\"03782\">\n" +
+                "    <nome>Dissertação</nome>\n" +
+                "    <ects>42.0</ects>\n" +
+                "    <avaliacao>\n" +
+                "      <componente title=\"Dissertação\" peso=\"60%\"/>\n" +
+                "      <componente title=\"Apresentação\" peso=\"20%\"/>\n" +
+                "      <componente title=\"Discussão\" peso=\"20%\"/>\n" +
+                "    </avaliacao>\n" +
+                "  </fuc>\n" +
+                "</plano>", XMLDoc.toText)
+
+        XMLDoc.removeAllAttributes("componente", "title")
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<plano>\n" +
+                "  <curso>Mestrado em Engenharia Informática</curso>\n" +
+                "  <fuc codigo=\"M4310\">\n" +
+                "    <nome>Programação Avançada</nome>\n" +
+                "    <ects>6.0</ects>\n" +
+                "    <avaliacao>\n" +
+                "      <componente peso=\"20%\"/>\n" +
+                "      <componente peso=\"80%\"/>\n" +
+                "    </avaliacao>\n" +
+                "  </fuc>\n" +
+                "  <fuc codigo=\"03782\">\n" +
+                "    <nome>Dissertação</nome>\n" +
+                "    <ects>42.0</ects>\n" +
+                "    <avaliacao>\n" +
+                "      <componente peso=\"60%\"/>\n" +
+                "      <componente peso=\"20%\"/>\n" +
+                "      <componente peso=\"20%\"/>\n" +
+                "    </avaliacao>\n" +
+                "  </fuc>\n" +
+                "</plano>", XMLDoc.toText)
     }
 }
 

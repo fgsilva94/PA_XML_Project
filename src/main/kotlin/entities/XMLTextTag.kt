@@ -20,8 +20,12 @@ class XMLTextTag(
         attributes.add(XMLAttribute(name, value))
     }
 
-    override fun updateAttribute(name: String, newName: String, newValue: String) {
-        attributes.find { it.name == name }?.update(newName, newValue)
+    override fun updateAttributeName(name: String, newName: String) {
+        attributes.find { it.name == name }?.name = newName
+    }
+
+    override fun updateAttributeValue(name: String, newValue: String) {
+        attributes.find { it.name == name }?.value = newValue
     }
 
     override fun removeAttribute(name: String) {
