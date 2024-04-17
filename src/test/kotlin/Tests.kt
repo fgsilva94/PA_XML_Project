@@ -142,17 +142,15 @@ class Tests {
 
     @Test
     fun testXMLDocumentAddRemoveUpdateAttributes() {
-        assertEquals("<?xml?>", XMLDoc.toText)
-        XMLDoc.addAttribute("version", "1.0")
-        assertEquals("<?xml version=\"1.0\"?>", XMLDoc.toText)
-        XMLDoc.addAttribute("encoding", "UTF-8")
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", XMLDoc.toText)
-        XMLDoc.updateAttributeValue("version", "2.0")
-        assertEquals("<?xml version=\"2.0\" encoding=\"UTF-8\"?>", XMLDoc.toText)
+        XMLDoc.updateAttributeValue("version", "1.1")
+        assertEquals("<?xml version=\"1.1\" encoding=\"UTF-8\"?>", XMLDoc.toText)
         XMLDoc.updateAttributeName("version", "versao")
-        assertEquals("<?xml versao=\"2.0\" encoding=\"UTF-8\"?>", XMLDoc.toText)
+        assertEquals("<?xml versao=\"1.1\" encoding=\"UTF-8\"?>", XMLDoc.toText)
         XMLDoc.removeAttribute("versao")
         assertEquals("<?xml encoding=\"UTF-8\"?>", XMLDoc.toText)
+        XMLDoc.addAttribute("version", "1.0")
+        assertEquals("<?xml encoding=\"UTF-8\" version=\"1.0\"?>", XMLDoc.toText)
     }
 
     @Test
@@ -179,11 +177,56 @@ class Tests {
     }
 
     @Test
+    fun testRenameRemoveAllElements() {
+        addElements()
+        addAttributes()
+
+        XMLDoc.renameAllElements("componente", "component")
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<plano>\n" +
+                "  <curso>Mestrado em Engenharia Informática</curso>\n" +
+                "  <fuc codigo=\"M4310\">\n" +
+                "    <nome>Programação Avançada</nome>\n" +
+                "    <ects>6.0</ects>\n" +
+                "    <avaliacao>\n" +
+                "      <component nome=\"Quizzes\" peso=\"20%\"/>\n" +
+                "      <component nome=\"Projeto\" peso=\"80%\"/>\n" +
+                "    </avaliacao>\n" +
+                "  </fuc>\n" +
+                "  <fuc codigo=\"03782\">\n" +
+                "    <nome>Dissertação</nome>\n" +
+                "    <ects>42.0</ects>\n" +
+                "    <avaliacao>\n" +
+                "      <component nome=\"Dissertação\" peso=\"60%\"/>\n" +
+                "      <component nome=\"Apresentação\" peso=\"20%\"/>\n" +
+                "      <component nome=\"Discussão\" peso=\"20%\"/>\n" +
+                "    </avaliacao>\n" +
+                "  </fuc>\n" +
+                "</plano>", XMLDoc.toText)
+        XMLDoc.removeAllElements("component")
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<plano>\n" +
+                "  <curso>Mestrado em Engenharia Informática</curso>\n" +
+                "  <fuc codigo=\"M4310\">\n" +
+                "    <nome>Programação Avançada</nome>\n" +
+                "    <ects>6.0</ects>\n" +
+                "    <avaliacao/>\n" +
+                "  </fuc>\n" +
+                "  <fuc codigo=\"03782\">\n" +
+                "    <nome>Dissertação</nome>\n" +
+                "    <ects>42.0</ects>\n" +
+                "    <avaliacao/>\n" +
+                "  </fuc>\n" +
+                "</plano>", XMLDoc.toText)
+    }
+
+    @Test
     fun testRenameRemoveAllAttributes() {
         addElements()
         addAttributes()
 
         XMLDoc.renameAllAttributes("componente", "nome", "title")
+
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<plano>\n" +
                 "  <curso>Mestrado em Engenharia Informática</curso>\n" +
@@ -229,5 +272,45 @@ class Tests {
                 "  </fuc>\n" +
                 "</plano>", XMLDoc.toText)
     }
-}
 
+    @Test
+    fun XPathTest() {
+        addElements()
+        addAttributes()
+
+        assertEquals(
+            listOf(componente1, componente2, componente3, componente4, componente5),
+            XMLDoc.xPath("fuc/avaliacao/componente")
+        )
+
+        assertEquals(
+            listOf(fuc1, fuc2),
+            XMLDoc.xPath("/plano/fuc")
+        )
+
+        assertEquals(
+            listOf(nome1, nome2),
+            XMLDoc.xPath("fuc/nome")
+        )
+
+        assertEquals(
+            listOf(avaliacao1, avaliacao2),
+            XMLDoc.xPath("/plano/fuc/avaliacao")
+        )
+
+        assertEquals(
+            emptyList<XMLElement>(),
+            XMLDoc.xPath("/plano/ects")
+        )
+
+        assertEquals(
+            emptyList<XMLElement>(),
+            XMLDoc.xPath("ects/componente")
+        )
+
+        assertEquals(
+            listOf(nome1, nome2),
+            XMLDoc.xPath("nome")
+        )
+    }
+}
