@@ -1,5 +1,9 @@
 package entities
 
+import com.sun.jdi.InvalidTypeException
+import extensions.updateKey
+import javax.naming.InvalidNameException
+
 /**
  * Abstract class representing a generic XML element.
  */
@@ -39,13 +43,26 @@ abstract class XMLElement {
         get() = "${if (this is XMLDocument) "/" else if (parent == null) "" else parent!!.path + "/"}$name"
 
     /**
+     * Checks if the provided name is valid for an XML element or attribute.
+     *
+     * @param name The name to validate.
+     * @return True if the name is valid, false otherwise.
+     */
+    protected fun isValidName(name: String): Boolean {
+        var regex =  "^(?!xml|Xml|XMl|XML|xMl|xML|Xml|xmL)[a-zA-Z_][a-zA-Z0-9._-]*$".toRegex()
+        return regex.matches(name)
+    }
+    /**
      * Update the name of this XML element.
      * Throws an exception if called on an XMLDocument.
      *
      * @param newName The new name for the XML element.
+     * @throws InvalidTypeException if this is an XMLDocument.
+     * @throws InvalidNameException if the new name is not valid.
      */
     fun updateName(newName: String) {
-        if (this is XMLDocument) throw Exception("XML Document can't change name")
+        if (this is XMLDocument) throw InvalidTypeException("XML Document tag can't change name")
+        if (!isValidName(newName)) throw InvalidNameException("Invalid name $newName")
         name = newName
     }
 
@@ -54,9 +71,10 @@ abstract class XMLElement {
      * Throws an exception if called on an XMLDocument.
      *
      * @param element The new parent element.
+     * @throws InvalidTypeException if this is an XMLDocument.
      */
     fun setParent(element: XMLElement?) {
-        if (this is XMLDocument) throw Exception("XML Document can't have parents")
+        if (this is XMLDocument) throw InvalidTypeException("XML Document can't have parents")
         parent = element
     }
 
@@ -65,8 +83,10 @@ abstract class XMLElement {
      *
      * @param name The name of the attribute.
      * @param value The value of the attribute.
+     * @throws InvalidNameException if the attribute name is not valid.
      */
     fun addAttribute(name: String, value: String) {
+        if (!isValidName(name)) throw InvalidNameException("Invalid name $name")
         attributes[name] = value
     }
 
@@ -84,8 +104,10 @@ abstract class XMLElement {
      *
      * @param name The current name of the attribute.
      * @param newName The new name for the attribute.
+     * @throws InvalidNameException if the new attribute name is not valid.
      */
     fun updateAttributeName(name: String, newName: String) {
+        if (!isValidName(newName)) throw InvalidNameException("Invalid name $newName")
         attributes.updateKey(name, newName)
     }
 

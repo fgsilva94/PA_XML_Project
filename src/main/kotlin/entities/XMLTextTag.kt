@@ -1,5 +1,8 @@
 package entities
 
+import extensions.toText
+import javax.naming.InvalidNameException
+
 /**
  * Class representing an XML text tag element.
  *
@@ -10,6 +13,10 @@ class XMLTextTag(
     override var name: String,
     var text: String,
 ) : XMLElement() {
+
+    init {
+        if (!isValidName(name)) throw InvalidNameException("Invalid name $name")
+    }
 
     /**
      * Returns the textual representation of the XML text tag.

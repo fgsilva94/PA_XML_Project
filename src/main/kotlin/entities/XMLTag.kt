@@ -1,5 +1,8 @@
 package entities
 
+import extensions.toText
+import javax.naming.InvalidNameException
+
 /**
  * Class representing a generic XML tag element.
  *
@@ -8,6 +11,11 @@ package entities
 class XMLTag(
     override var name: String,
 ) : XMLElement() {
+
+    init {
+        if (!isValidName(name)) throw InvalidNameException("Invalid name $name")
+    }
+
     /**
      * A list of child XML elements contained within this XML tag.
      */

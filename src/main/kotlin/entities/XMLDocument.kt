@@ -1,5 +1,7 @@
 package entities
 
+import extensions.toText
+
 /**
  * Class representing an XML document.
  */
@@ -13,7 +15,7 @@ class XMLDocument : XMLElement() {
 
     /**
      * Returns the textual representation of the XML document.
-     * This includes the XML declaration and the textual representation of its child element if present.
+     * This includes the XML declaration and the textual representation of its child element, if present.
      */
     override val toText: String
         get() = " ".repeat((depth - 1) * 2) +
@@ -22,6 +24,8 @@ class XMLDocument : XMLElement() {
 
     /**
      * Initializes the XML document with a default name and attributes.
+     * Sets the name to "xml" and adds the version and encoding attributes.
+     *
      */
     init {
         name = "xml"
@@ -51,6 +55,8 @@ class XMLDocument : XMLElement() {
     /**
      * Removes the child element from this XML document.
      * Throws an exception if there is no child element.
+     *
+     * @throws Exception if the XML document does not have a child element.
      */
     fun removeElement() {
         child?.setParent(null) ?: throw Exception("The XML Document doesn't have a child")
